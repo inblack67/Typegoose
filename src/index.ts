@@ -8,9 +8,16 @@ import 'colors';
 import { isProd } from './utils/constants';
 import { getSchema } from './utils/schema';
 import { MyContext } from './utils/types';
+import { connectDB } from './utils/connectDB';
+import connectMongo from 'connect-mongo';
+import mongoose from 'mongoose';
 
 const main = async () =>
 {
+    await connectDB();
+
+    const MongoStore = connectMongo( session );
+
     const app = express();
 
     app.get( '/', ( _: Request, res: Response ) =>
@@ -19,7 +26,7 @@ const main = async () =>
     } );
 
     app.use( session( {
-        // store: new RedisStore( { client: RedisClient } ),
+        store: new MongoStore( { mongooseConnection: mongoose.connection } ),
         name: 'quid',
         secret: process.env.SESSION_SECRET,
         resave: false,
